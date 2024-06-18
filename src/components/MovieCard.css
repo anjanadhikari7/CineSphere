@@ -1,0 +1,19 @@
+.movie-card {
+  background-color: #333; /* Dark background */
+  color: #fff; /* Light text color */
+  border: none; /* Remove border */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow */
+  margin-bottom: 20px; /* Add margin */
+}
+
+.movie-card img {
+  height: 200px; /* Adjust card image height */
+}
+
+.movie-card h5 {
+  font-size: 1rem; /* Adjust title font size */
+}
+
+.movie-card p {
+  font-size: 0.875rem; /* Adjust description font size */
+}

@@ -1,19 +1,46 @@
 .movie-card {
-  background-color: #333; /* Dark background */
-  color: #fff; /* Light text color */
-  border: none; /* Remove border */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow */
-  margin-bottom: 20px; /* Add margin */
+  margin-bottom: 20px;
+  border: none;
+  background-color: #1c1c1c;
+  color: #fff;
 }
 
-.movie-card img {
-  height: 200px; /* Adjust card image height */
+.movie-card .card-img {
+  max-height: 100%;
 }
 
-.movie-card h5 {
-  font-size: 1rem; /* Adjust title font size */
+.movie-card .card-body {
+  padding: 20px;
 }
 
-.movie-card p {
-  font-size: 0.875rem; /* Adjust description font size */
+.movie-card .card-title {
+  font-size: 1.75rem;
+}
+
+.movie-card .card-subtitle i,
+.movie-card .card-text i {
+  margin-right: 5px;
+}
+
+.movie-card .card-text {
+  margin-bottom: 0.5rem;
+}
+
+.movie-card .card-body strong {
+  margin-right: 5px;
+}
+
+.movie-card-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.movie-card-actions .btn-outline-success {
+  color: green;
+  border-color: green;
+}
+
+.movie-card-actions .btn-outline-warning {
+  color: orange;
+  border-color: orange;
 }

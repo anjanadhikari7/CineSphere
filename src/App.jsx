@@ -1,5 +1,6 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import logo from "./utilities/logo.png";
 import MovieCard from "./components/MovieCard";
 import SearchBar from "./components/SearchBar";
@@ -19,16 +20,17 @@ function App() {
   const [wishList, setWishList] = useState(storedMovieList);
   const [isLoading, setIsLoading] = useState(false);
   const [isNext, setIsNext] = useState(false);
+  const [actionList, setActionList] = useState([]);
+  const [comedyList, setComedyList] = useState([]);
 
-  const searchMovie = async (movieTitle) => {
-    setIsNext(false);
+  const searchMovie = async (movie, fetchSimilar = true) => {
     setIsLoading(true);
     try {
-      const response = await axios.get(API_URL + movieTitle);
+      const response = await axios.get(API_URL + movie);
       if (response.data) {
         setSearchedMovie(response.data);
-        if (!isNext) {
-          const searchResponse = await axios.get(SEARCH_URL + movieTitle);
+        if (fetchSimilar) {
+          const searchResponse = await axios.get(SEARCH_URL + movie);
           if (searchResponse.data && searchResponse.data.Search) {
             setSimilarMovies(searchResponse.data.Search);
             setCurrentMovieIndex(0);
@@ -36,37 +38,35 @@ function App() {
             setSimilarMovies([]);
           }
         }
-        setIsLoading(false);
       }
     } catch (error) {
       alert(error.message);
+    } finally {
       setIsLoading(false);
     }
   };
 
   const addMovieToWishList = (movie) => {
-    setWishList([...wishList, movie]);
+    if (!wishList.some((item) => item.imdbID === movie.imdbID)) {
+      const updatedWishList = [...wishList, movie];
+      setWishList(updatedWishList);
+      localStorage.setItem("wishList", JSON.stringify(updatedWishList));
+    }
   };
 
-  useEffect(() => {
-    searchMovie("X-Men");
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("wishList", JSON.stringify(wishList));
-  }, [wishList]);
-
-  const handleOnDiscard = () => {
-    searchMovie("X-Men");
-    setIsNext(true);
+  const addToAction = (movie) => {
+    if (!actionList.some((item) => item.imdbID === movie.imdbID)) {
+      const updatedActionList = [...actionList, movie];
+      setActionList(updatedActionList);
+      localStorage.setItem("actionList", JSON.stringify(updatedActionList));
+    }
   };
 
-  const handleNextMovie = () => {
-    if (similarMovies.length > 0) {
-      const nextIndex = (currentMovieIndex + 1) % similarMovies.length;
-      setCurrentMovieIndex(nextIndex);
-      searchMovie(similarMovies[nextIndex].Title);
-      setIsNext(true);
+  const addToComedy = (movie) => {
+    if (!comedyList.some((item) => item.imdbID === movie.imdbID)) {
+      const updatedComedyList = [...comedyList, movie];
+      setComedyList(updatedComedyList);
+      localStorage.setItem("comedyList", JSON.stringify(updatedComedyList));
     }
   };
 
@@ -77,8 +77,13 @@ function App() {
     if (confirmDelete) {
       const updatedWishList = wishList.filter((movie) => movie.imdbID !== ID);
       setWishList(updatedWishList);
+      localStorage.setItem("wishList", JSON.stringify(updatedWishList));
     }
   };
+
+  useEffect(() => {
+    searchMovie("X-Men");
+  }, []);
 
   return (
     <div className="container-fluid bg-dark d-flex flex-column align-items-center justify-content-start">
@@ -88,13 +93,13 @@ function App() {
             src={logo}
             alt="Logo"
             className="img-fluid mb-4"
-            style={{ maxWidth: "200px" }}
+            style={{ maxWidth: "150px" }}
           />
           <SearchBar searchMovie={searchMovie} />
         </div>
         <Row className="my-4">
           <Col>
-            {isLoading && (
+            {isLoading ? (
               <Button variant="warning" disabled>
                 <Spinner
                   as="span"
@@ -105,47 +110,56 @@ function App() {
                 />
                 Loading...
               </Button>
-            )}
-            {!isLoading && (
-              <Card className="shadow-sm mb-4 bg-light movie-card">
-                <Card.Body>
+            ) : (
+              <div>
+                <Card className="shadow-sm mb-4 bg-light movie-card">
+                  <Card.Body>
+                    <Row>
+                      <Col md={12}>
+                        <MovieCard
+                          movie={searchedMovie}
+                          addToAction={addToAction}
+                          addToComedy={addToComedy}
+                        />
+                      </Col>
+                    </Row>
+                    <Row className="mt-3">
+                      <Col className="d-flex flex-column justify-content-between">
+                        <AddToWishList
+                          movie={searchedMovie}
+                          addMovieToWishList={addMovieToWishList}
+                          wishList={wishList}
+                        />
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Card>
+
+                <div className="similar-movies">
                   <Row>
-                    <Col md={12}>
-                      <MovieCard movie={searchedMovie} />
-                    </Col>
+                    {similarMovies.map((movie, index) => (
+                      <Col key={index} sm={6} md={4} lg={3}>
+                        <Card
+                          className="similar-movie-card mb-4"
+                          onClick={() => searchMovie(movie.Title, false)}
+                        >
+                          <Card.Img
+                            variant="top"
+                            src={movie.Poster}
+                            alt={movie.Title}
+                          />
+                          <Card.Body>
+                            <Card.Title>{movie.Title}</Card.Title>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    ))}
                   </Row>
-                  <Row className="mt-3">
-                    <Col className="d-flex flex-column justify-content-between">
-                      <AddToWishList
-                        movie={searchedMovie}
-                        addMovieToWishList={addMovieToWishList}
-                        wishList={wishList}
-                        handleOnDiscard={handleOnDiscard}
-                      />
-                      <Button
-                        variant="info"
-                        className="mt-3"
-                        onClick={handleNextMovie}
-                      >
-                        Next Similar Movie
-                      </Button>
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
+                </div>
+              </div>
             )}
           </Col>
         </Row>
-        <div className="similar-movies">
-          {similarMovies.map((movie, index) => (
-            <Card key={index} className="similar-movie-card">
-              <Card.Img variant="top" src={movie.Poster} alt={movie.Title} />
-              <Card.Body>
-                <Card.Title>{movie.Title}</Card.Title>
-              </Card.Body>
-            </Card>
-          ))}
-        </div>
       </div>
     </div>
   );

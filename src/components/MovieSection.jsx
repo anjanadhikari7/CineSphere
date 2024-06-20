@@ -1,7 +1,7 @@
 import React from "react";
 import { Col, Row, Card } from "react-bootstrap";
 
-const MovieSection = ({ title, movies }) => {
+const MovieSection = ({ title, movies, onMovieClick }) => {
   return (
     <div className="my-4">
       <h2 className="text-light">{title}</h2>

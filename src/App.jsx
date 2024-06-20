@@ -1,13 +1,13 @@
-import "./App.css";
-import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useEffect, useState } from "react";
+import { Button, Card, Col, Row, Spinner } from "react-bootstrap";
+import axios from "axios";
 import logo from "./utilities/logo.png";
 import MovieCard from "./components/MovieCard";
 import SearchBar from "./components/SearchBar";
 import AddToWishList from "./components/AddToWishList";
-import { useEffect, useState } from "react";
-import { Button, Card, Col, Row, Spinner } from "react-bootstrap";
-import axios from "axios";
 import MovieSection from "./components/MovieSection";
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const TMDB_API_KEY = "3510cfa16a6f3bcb9a22b17cc29f0d76";
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
@@ -18,17 +18,17 @@ const UPCOMING_MOVIES_URL = `${TMDB_BASE_URL}/movie/upcoming?api_key=${TMDB_API_
 const TRENDING_MOVIES_URL = `${TMDB_BASE_URL}/trending/movie/week?api_key=${TMDB_API_KEY}`;
 const SEARCH_MOVIE_URL = (query) =>
   `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${query}`;
-const SIMILAR_MOVIES_URL = (movieId) =>
-  `${TMDB_BASE_URL}/movie/${movieId}/similar?api_key=${TMDB_API_KEY}`;
+const MOVIE_DETAILS_URL = (id) =>
+  `${TMDB_BASE_URL}/movie/${id}?api_key=${TMDB_API_KEY}`;
+const MOVIE_CREDITS_URL = (id) =>
+  `${TMDB_BASE_URL}/movie/${id}/credits?api_key=${TMDB_API_KEY}`;
 
 function App() {
   const [searchedMovie, setSearchedMovie] = useState({});
   const [similarMovies, setSimilarMovies] = useState([]);
-  const [currentMovieIndex, setCurrentMovieIndex] = useState(0);
   const storedMovieList = JSON.parse(localStorage.getItem("wishList")) || [];
   const [wishList, setWishList] = useState(storedMovieList);
   const [isLoading, setIsLoading] = useState(false);
-  const [isNext, setIsNext] = useState(false);
   const [topMovies, setTopMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [nowPlaying, setNowPlaying] = useState([]);
@@ -56,17 +56,36 @@ function App() {
     }
   };
 
+  const fetchMovieDetails = async (movieId) => {
+    try {
+      const movieDetails = await axios.get(MOVIE_DETAILS_URL(movieId));
+      const movieCredits = await axios.get(MOVIE_CREDITS_URL(movieId));
+
+      const director = movieCredits.data.crew.find(
+        (person) => person.job === "Director"
+      );
+      const cast = movieCredits.data.cast.slice(0, 5);
+
+      return {
+        ...movieDetails.data,
+        director: director ? director.name : "N/A",
+        cast: cast.map((actor) => actor.name).join(", "),
+      };
+    } catch (error) {
+      console.error("Error fetching movie details:", error);
+    }
+  };
+
   const searchMovie = async (query) => {
-    setIsNext(false);
     setIsLoading(true);
     try {
       const response = await axios.get(SEARCH_MOVIE_URL(query));
       if (response.data.results.length > 0) {
-        const movie = response.data.results[0];
-        setSearchedMovie(movie);
-        const similarResponse = await axios.get(SIMILAR_MOVIES_URL(movie.id));
-        setSimilarMovies(similarResponse.data.results);
-        setCurrentMovieIndex(0);
+        const [firstMovie, ...restMovies] = response.data.results;
+        const detailedMovie = await fetchMovieDetails(firstMovie.id);
+
+        setSearchedMovie(detailedMovie);
+        setSimilarMovies(restMovies);
       } else {
         setSearchedMovie({});
         setSimilarMovies([]);
@@ -78,32 +97,20 @@ function App() {
     }
   };
 
+  const handleMovieClick = async (movieId) => {
+    setIsLoading(true);
+    const detailedMovie = await fetchMovieDetails(movieId);
+    setSearchedMovie(detailedMovie);
+    setIsLoading(false);
+  };
+
   const addMovieToWishList = (movie) => {
     setWishList([...wishList, movie]);
   };
 
   useEffect(() => {
-    fetchTMDBMovies();
-    searchMovie("X-Men");
-  }, []);
-
-  useEffect(() => {
     localStorage.setItem("wishList", JSON.stringify(wishList));
   }, [wishList]);
-
-  const handleOnDiscard = () => {
-    searchMovie("X-Men");
-    setIsNext(true);
-  };
-
-  const handleNextMovie = () => {
-    if (similarMovies.length > 0) {
-      const nextIndex = (currentMovieIndex + 1) % similarMovies.length;
-      setCurrentMovieIndex(nextIndex);
-      searchMovie(similarMovies[nextIndex].title);
-      setIsNext(true);
-    }
-  };
 
   const handleOnRemove = (ID) => {
     const confirmDelete = window.confirm(
@@ -114,6 +121,10 @@ function App() {
       setWishList(updatedWishList);
     }
   };
+
+  useEffect(() => {
+    fetchTMDBMovies();
+  }, []);
 
   return (
     <div className="container-fluid bg-dark d-flex flex-column align-items-center justify-content-start">
@@ -141,13 +152,16 @@ function App() {
                 Loading...
               </Button>
             )}
-            {!isLoading && (
+            {!isLoading && searchedMovie.id && (
               <div>
                 <Card className="shadow-sm mb-4 bg-light movie-card">
                   <Card.Body>
                     <Row>
                       <Col md={12}>
-                        <MovieCard movie={searchedMovie} />
+                        <MovieCard
+                          movie={searchedMovie}
+                          onClick={handleMovieClick}
+                        />
                       </Col>
                     </Row>
                     <Row className="mt-3">
@@ -156,48 +170,45 @@ function App() {
                           movie={searchedMovie}
                           addMovieToWishList={addMovieToWishList}
                           wishList={wishList}
-                          handleOnDiscard={handleOnDiscard}
                         />
-                        <Button
-                          variant="info"
-                          className="mt-3"
-                          onClick={handleNextMovie}
-                        >
-                          Next Similar Movie
-                        </Button>
                       </Col>
                     </Row>
                   </Card.Body>
                 </Card>
 
-                <div className="similar-movies">
-                  {similarMovies.map((movie, index) => (
-                    <Card
-                      key={index}
-                      className="similar-movie-card"
-                      onClick={() => {
-                        setMovie(movie.title);
-                      }}
-                    >
-                      <Card.Img
-                        variant="top"
-                        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                        alt={movie.title}
-                      />
-                      <Card.Body>
-                        <Card.Title>{movie.title}</Card.Title>
-                      </Card.Body>
-                    </Card>
-                  ))}
-                </div>
+                <MovieSection
+                  title="Similar Movies"
+                  movies={similarMovies}
+                  onMovieClick={handleMovieClick}
+                />
               </div>
             )}
 
-            <MovieSection title="Top Rated Movies" movies={topMovies} />
-            <MovieSection title="Popular Movies" movies={popularMovies} />
-            <MovieSection title="Now Playing" movies={nowPlaying} />
-            <MovieSection title="Upcoming Movies" movies={upcomingMovies} />
-            <MovieSection title="Trending Movies" movies={trendingMovies} />
+            <MovieSection
+              title="Top Rated Movies"
+              movies={topMovies}
+              onMovieClick={handleMovieClick}
+            />
+            <MovieSection
+              title="Popular Movies"
+              movies={popularMovies}
+              onMovieClick={handleMovieClick}
+            />
+            <MovieSection
+              title="Now Playing"
+              movies={nowPlaying}
+              onMovieClick={handleMovieClick}
+            />
+            <MovieSection
+              title="Upcoming Movies"
+              movies={upcomingMovies}
+              onMovieClick={handleMovieClick}
+            />
+            <MovieSection
+              title="Trending Movies"
+              movies={trendingMovies}
+              onMovieClick={handleMovieClick}
+            />
           </Col>
         </Row>
       </div>

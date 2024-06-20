@@ -1,11 +1,15 @@
-import { useState } from "react";
-import { Button } from "react-bootstrap";
+import React, { useState } from "react";
+import { Button, Stack } from "react-bootstrap";
 
-const AddToWishList = (props) => {
-  const { addMovieToWishList, movie, wishList = [], handleOnDiscard } = props;
+const AddToWishList = ({
+  addMovieToWishList,
+  movie,
+  wishList = [],
+  handleOnDiscard,
+}) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleOnclick = (genre) => {
+  const handleOnClick = (genre) => {
     const movieWithGenre = { ...movie, Genre: genre };
     addMovieToWishList(movieWithGenre);
   };
@@ -19,24 +23,26 @@ const AddToWishList = (props) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className={`wishlist-buttons ${isHovered ? "" : "hide"}`}>
-        <Button
-          disabled={disableButtons}
-          variant="outline-primary"
-          className="btn-sm mb-2"
-          onClick={() => handleOnclick("Action")}
-        >
-          <i className="fas fa-plus-circle"></i>
-          <span>Add to Action</span>
-        </Button>
-        <Button
-          disabled={disableButtons}
-          variant="outline-success"
-          className="btn-sm"
-          onClick={() => handleOnclick("Comedy")}
-        >
-          <i className="fas fa-plus-circle"></i>
-          <span>Add to Comedy</span>
-        </Button>
+        <Stack direction="vertical">
+          <Button
+            disabled={disableButtons}
+            variant="outline-primary"
+            className="btn-sm mb-2"
+            onClick={() => handleOnClick("Action")}
+          >
+            <i className="fas fa-plus-circle me-1"></i>
+            Add to Action
+          </Button>
+          <Button
+            disabled={disableButtons}
+            variant="outline-success"
+            className="btn-sm"
+            onClick={() => handleOnClick("Comedy")}
+          >
+            <i className="fas fa-plus-circle me-1"></i>
+            Add to Comedy
+          </Button>
+        </Stack>
       </div>
     </div>
   );

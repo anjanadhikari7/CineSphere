@@ -1,16 +1,25 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
 import logo from "./utilities/logo.png";
 import MovieCard from "./components/MovieCard";
 import SearchBar from "./components/SearchBar";
+import AddToWishList from "./components/AddToWishList";
 import { useEffect, useState } from "react";
 import { Button, Card, Col, Row, Spinner } from "react-bootstrap";
 import axios from "axios";
-import AddToWishList from "./components/AddToWishList";
+import MovieSection from "./components/MovieSection";
 
-const API_URL = "https://www.omdbapi.com/?apikey=e68479dc&type=movie&t=";
-const SEARCH_URL = "https://www.omdbapi.com/?apikey=e68479dc&type=movie&s=";
+const TMDB_API_KEY = "3510cfa16a6f3bcb9a22b17cc29f0d76";
+const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+const TOP_MOVIES_URL = `${TMDB_BASE_URL}/movie/top_rated?api_key=${TMDB_API_KEY}`;
+const POPULAR_MOVIES_URL = `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}`;
+const NOW_PLAYING_URL = `${TMDB_BASE_URL}/movie/now_playing?api_key=${TMDB_API_KEY}`;
+const UPCOMING_MOVIES_URL = `${TMDB_BASE_URL}/movie/upcoming?api_key=${TMDB_API_KEY}`;
+const TRENDING_MOVIES_URL = `${TMDB_BASE_URL}/trending/movie/week?api_key=${TMDB_API_KEY}`;
+const SEARCH_MOVIE_URL = (query) =>
+  `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${query}`;
+const SIMILAR_MOVIES_URL = (movieId) =>
+  `${TMDB_BASE_URL}/movie/${movieId}/similar?api_key=${TMDB_API_KEY}`;
 
 function App() {
   const [searchedMovie, setSearchedMovie] = useState({});
@@ -20,53 +29,79 @@ function App() {
   const [wishList, setWishList] = useState(storedMovieList);
   const [isLoading, setIsLoading] = useState(false);
   const [isNext, setIsNext] = useState(false);
-  const [actionList, setActionList] = useState([]);
-  const [comedyList, setComedyList] = useState([]);
+  const [topMovies, setTopMovies] = useState([]);
+  const [popularMovies, setPopularMovies] = useState([]);
+  const [nowPlaying, setNowPlaying] = useState([]);
+  const [upcomingMovies, setUpcomingMovies] = useState([]);
+  const [trendingMovies, setTrendingMovies] = useState([]);
 
-  const searchMovie = async (movie, fetchSimilar = true) => {
+  const fetchTMDBMovies = async () => {
+    try {
+      const topMoviesRes = await axios.get(TOP_MOVIES_URL);
+      setTopMovies(topMoviesRes.data.results);
+
+      const popularMoviesRes = await axios.get(POPULAR_MOVIES_URL);
+      setPopularMovies(popularMoviesRes.data.results);
+
+      const nowPlayingRes = await axios.get(NOW_PLAYING_URL);
+      setNowPlaying(nowPlayingRes.data.results);
+
+      const upcomingMoviesRes = await axios.get(UPCOMING_MOVIES_URL);
+      setUpcomingMovies(upcomingMoviesRes.data.results);
+
+      const trendingMoviesRes = await axios.get(TRENDING_MOVIES_URL);
+      setTrendingMovies(trendingMoviesRes.data.results);
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    }
+  };
+
+  const searchMovie = async (query) => {
+    setIsNext(false);
     setIsLoading(true);
     try {
-      const response = await axios.get(API_URL + movie);
-      if (response.data) {
-        setSearchedMovie(response.data);
-        if (fetchSimilar) {
-          const searchResponse = await axios.get(SEARCH_URL + movie);
-          if (searchResponse.data && searchResponse.data.Search) {
-            setSimilarMovies(searchResponse.data.Search);
-            setCurrentMovieIndex(0);
-          } else {
-            setSimilarMovies([]);
-          }
-        }
+      const response = await axios.get(SEARCH_MOVIE_URL(query));
+      if (response.data.results.length > 0) {
+        const movie = response.data.results[0];
+        setSearchedMovie(movie);
+        const similarResponse = await axios.get(SIMILAR_MOVIES_URL(movie.id));
+        setSimilarMovies(similarResponse.data.results);
+        setCurrentMovieIndex(0);
+      } else {
+        setSearchedMovie({});
+        setSimilarMovies([]);
       }
+      setIsLoading(false);
     } catch (error) {
       alert(error.message);
-    } finally {
       setIsLoading(false);
     }
   };
 
   const addMovieToWishList = (movie) => {
-    if (!wishList.some((item) => item.imdbID === movie.imdbID)) {
-      const updatedWishList = [...wishList, movie];
-      setWishList(updatedWishList);
-      localStorage.setItem("wishList", JSON.stringify(updatedWishList));
-    }
+    setWishList([...wishList, movie]);
   };
 
-  const addToAction = (movie) => {
-    if (!actionList.some((item) => item.imdbID === movie.imdbID)) {
-      const updatedActionList = [...actionList, movie];
-      setActionList(updatedActionList);
-      localStorage.setItem("actionList", JSON.stringify(updatedActionList));
-    }
+  useEffect(() => {
+    fetchTMDBMovies();
+    searchMovie("X-Men");
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("wishList", JSON.stringify(wishList));
+  }, [wishList]);
+
+  const handleOnDiscard = () => {
+    searchMovie("X-Men");
+    setIsNext(true);
   };
 
-  const addToComedy = (movie) => {
-    if (!comedyList.some((item) => item.imdbID === movie.imdbID)) {
-      const updatedComedyList = [...comedyList, movie];
-      setComedyList(updatedComedyList);
-      localStorage.setItem("comedyList", JSON.stringify(updatedComedyList));
+  const handleNextMovie = () => {
+    if (similarMovies.length > 0) {
+      const nextIndex = (currentMovieIndex + 1) % similarMovies.length;
+      setCurrentMovieIndex(nextIndex);
+      searchMovie(similarMovies[nextIndex].title);
+      setIsNext(true);
     }
   };
 
@@ -75,15 +110,10 @@ function App() {
       "Are you sure you want to delete this movie from your wishlist?"
     );
     if (confirmDelete) {
-      const updatedWishList = wishList.filter((movie) => movie.imdbID !== ID);
+      const updatedWishList = wishList.filter((movie) => movie.id !== ID);
       setWishList(updatedWishList);
-      localStorage.setItem("wishList", JSON.stringify(updatedWishList));
     }
   };
-
-  useEffect(() => {
-    searchMovie("X-Men");
-  }, []);
 
   return (
     <div className="container-fluid bg-dark d-flex flex-column align-items-center justify-content-start">
@@ -99,7 +129,7 @@ function App() {
         </div>
         <Row className="my-4">
           <Col>
-            {isLoading ? (
+            {isLoading && (
               <Button variant="warning" disabled>
                 <Spinner
                   as="span"
@@ -110,17 +140,14 @@ function App() {
                 />
                 Loading...
               </Button>
-            ) : (
+            )}
+            {!isLoading && (
               <div>
                 <Card className="shadow-sm mb-4 bg-light movie-card">
                   <Card.Body>
                     <Row>
                       <Col md={12}>
-                        <MovieCard
-                          movie={searchedMovie}
-                          addToAction={addToAction}
-                          addToComedy={addToComedy}
-                        />
+                        <MovieCard movie={searchedMovie} />
                       </Col>
                     </Row>
                     <Row className="mt-3">
@@ -129,35 +156,48 @@ function App() {
                           movie={searchedMovie}
                           addMovieToWishList={addMovieToWishList}
                           wishList={wishList}
+                          handleOnDiscard={handleOnDiscard}
                         />
+                        <Button
+                          variant="info"
+                          className="mt-3"
+                          onClick={handleNextMovie}
+                        >
+                          Next Similar Movie
+                        </Button>
                       </Col>
                     </Row>
                   </Card.Body>
                 </Card>
 
                 <div className="similar-movies">
-                  <Row>
-                    {similarMovies.map((movie, index) => (
-                      <Col key={index} sm={6} md={4} lg={3}>
-                        <Card
-                          className="similar-movie-card mb-4"
-                          onClick={() => searchMovie(movie.Title, false)}
-                        >
-                          <Card.Img
-                            variant="top"
-                            src={movie.Poster}
-                            alt={movie.Title}
-                          />
-                          <Card.Body>
-                            <Card.Title>{movie.Title}</Card.Title>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
+                  {similarMovies.map((movie, index) => (
+                    <Card
+                      key={index}
+                      className="similar-movie-card"
+                      onClick={() => {
+                        setMovie(movie.title);
+                      }}
+                    >
+                      <Card.Img
+                        variant="top"
+                        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                        alt={movie.title}
+                      />
+                      <Card.Body>
+                        <Card.Title>{movie.title}</Card.Title>
+                      </Card.Body>
+                    </Card>
+                  ))}
                 </div>
               </div>
             )}
+
+            <MovieSection title="Top Rated Movies" movies={topMovies} />
+            <MovieSection title="Popular Movies" movies={popularMovies} />
+            <MovieSection title="Now Playing" movies={nowPlaying} />
+            <MovieSection title="Upcoming Movies" movies={upcomingMovies} />
+            <MovieSection title="Trending Movies" movies={trendingMovies} />
           </Col>
         </Row>
       </div>

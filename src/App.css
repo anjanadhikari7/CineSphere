@@ -22,34 +22,28 @@
 }
 
 .wishlist-buttons {
-  display: flex;
-  flex-direction: column;
-  opacity: 1;
+  opacity: 0;
   transition: opacity 0.3s ease;
 }
 
 .wishlist-buttons.hide {
-  opacity: 0;
+  opacity: 1;
 }
 
 .wishlist-buttons .btn-sm {
   display: flex;
   align-items: center;
   margin-bottom: 5px;
-  opacity: 1; /* Show the button by default */
-  transition: opacity 0.3s ease; /* Add transition */
 }
 
 .wishlist-buttons .btn-sm i {
-  transition: opacity 0.3s ease; /* Add transition */
+  margin-right: 5px;
 }
 
 .wishlist-buttons .btn-sm span {
-  margin-left: 5px;
-  opacity: 0; /* Hide the text by default */
-  transition: opacity 0.3s ease; /* Add transition */
+  display: none;
 }
 
 .wishlist-buttons .btn-sm:hover span {
-  opacity: 1; /* Show the text on hover */
+  display: inline-block;
 }

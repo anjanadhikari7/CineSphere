@@ -7,43 +7,33 @@
   margin-bottom: 20px;
 }
 
-.similar-movies .similar-movie-card {
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-}
-
-.similar-movies .similar-movie-card:hover {
-  transform: scale(1.05);
-}
 .add-to-wishlist {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  position: relative;
 }
 
 .wishlist-buttons {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.wishlist-buttons.hide {
-  opacity: 1;
-}
-
-.wishlist-buttons .btn-sm {
   display: flex;
-  align-items: center;
-  margin-bottom: 5px;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  right: 0;
+  transition: opacity 0.3s;
 }
 
-.wishlist-buttons .btn-sm i {
-  margin-right: 5px;
+.hide {
+  opacity: 0;
+  pointer-events: none;
 }
 
-.wishlist-buttons .btn-sm span {
-  display: none;
+.add-to-wishlist:hover .wishlist-buttons {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.wishlist-buttons .btn-sm:hover span {
-  display: inline-block;
+.movie-card {
+  transform: scale(1.05);
+}
+.movie-card:hover {
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
 }

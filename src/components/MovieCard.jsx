@@ -3,7 +3,7 @@ import { Card, Row, Col } from "react-bootstrap";
 import "./MovieCard.css";
 import NoPoster from "../utilities/noPoster.jpg";
 
-function MovieCard({ movie, onClick }) {
+const MovieCard = ({ movie, onClick }) => {
   return (
     <Card
       className="movie-card bg-dark text-light"
@@ -43,6 +43,6 @@ function MovieCard({ movie, onClick }) {
       </Row>
     </Card>
   );
-}
+};
 
 export default MovieCard;

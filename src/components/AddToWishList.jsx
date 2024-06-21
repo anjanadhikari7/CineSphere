@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import { Button, Stack } from "react-bootstrap";
 
-const AddToWishList = ({
-  addMovieToWishList,
-  movie,
-  wishList = [],
-  handleOnDiscard,
-}) => {
+const AddToWishList = ({ addMovieToWishList, movie, wishList = [] }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleOnClick = (genre) => {
@@ -14,7 +9,8 @@ const AddToWishList = ({
     addMovieToWishList(movieWithGenre);
   };
 
-  const disableButtons = wishList.find((item) => item.imdbID === movie.imdbID);
+  // Check if the movie is already in the wishList
+  const disableButtons = wishList.some((item) => item.id === movie.id);
 
   return (
     <div

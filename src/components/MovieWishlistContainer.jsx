@@ -45,9 +45,6 @@ const MovieWishlistContainer = () => {
       const popularMoviesRes = await axios.get(POPULAR_MOVIES_URL);
       setPopularMovies(popularMoviesRes.data.results);
 
-      const nowPlayingRes = await axios.get(NOW_PLAYING_URL);
-      setNowPlaying(nowPlayingRes.data.results);
-
       const upcomingMoviesRes = await axios.get(UPCOMING_MOVIES_URL);
       setUpcomingMovies(upcomingMoviesRes.data.results);
 
@@ -133,12 +130,7 @@ const MovieWishlistContainer = () => {
       <div className="container-custom">
         <div className="header d-flex justify-content-between align-items-center mb-4">
           <div className="d-flex align-items-center">
-            <img
-              src={logo}
-              alt="Logo"
-              className="img-fluid"
-              style={{ maxWidth: "150px", marginRight: "20px" }}
-            />
+            <h2> Movie Wishlist </h2>
             {wishList.length > 0 && (
               <Link
                 to="/WishList"

@@ -3,7 +3,7 @@ import { Col, Row, Card } from "react-bootstrap";
 
 const MovieSection = ({ title, movies, onMovieClick }) => {
   return (
-    <div className="my-4 movie-card">
+    <div className="movie-card">
       <h2 className="text-light">{title}</h2>
       <Row>
         {movies.slice(0, 10).map((movie, index) => (

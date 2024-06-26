@@ -11,7 +11,8 @@ import { FaHeart } from "react-icons/fa"; // Import Font Awesome icon
 
 import WishList from "../pages/WishList";
 
-const TMDB_API_KEY = "3510cfa16a6f3bcb9a22b17cc29f0d76";
+// const TMDB_API_KEY = "3510cfa16a6f3bcb9a22b17cc29f0d76";
+const TMDB_API_KEY = "1234";
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 const TOP_MOVIES_URL = `${TMDB_BASE_URL}/movie/top_rated?api_key=${TMDB_API_KEY}`;
 const POPULAR_MOVIES_URL = `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}`;
@@ -44,6 +45,9 @@ const MovieWishlistContainer = () => {
 
       const popularMoviesRes = await axios.get(POPULAR_MOVIES_URL);
       setPopularMovies(popularMoviesRes.data.results);
+
+      const nowPlayingRes = await axios.get(NOW_PLAYING_URL);
+      setNowPlaying(nowPlayingRes.data.results);
 
       const upcomingMoviesRes = await axios.get(UPCOMING_MOVIES_URL);
       setUpcomingMovies(upcomingMoviesRes.data.results);

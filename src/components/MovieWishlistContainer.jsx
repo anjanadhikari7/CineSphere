@@ -1,4 +1,4 @@
-import { Button, Card, Col, Row, Spinner } from "react-bootstrap";
+import { Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
 import logo from "../utilities/logo.png";
 import SearchBar from "./SearchBar";
 import MovieCard from "./MovieCard";
@@ -12,7 +12,7 @@ import { FaHeart } from "react-icons/fa"; // Import Font Awesome icon
 import WishList from "../pages/WishList";
 
 // const TMDB_API_KEY = "3510cfa16a6f3bcb9a22b17cc29f0d76";
-const TMDB_API_KEY = "1234";
+const TMDB_API_KEY = "3510cfa16a6f3bcb9a22b17cc29f0d76";
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 const TOP_MOVIES_URL = `${TMDB_BASE_URL}/movie/top_rated?api_key=${TMDB_API_KEY}`;
 const POPULAR_MOVIES_URL = `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}`;
@@ -130,8 +130,8 @@ const MovieWishlistContainer = () => {
   }, []);
 
   return (
-    <div className="container-fluid bg-dark d-flex flex-column align-items-center justify-content-start">
-      <div className="container-custom">
+    <Container>
+      <Col xs={12} md={6} lg={4}>
         <div className="header d-flex justify-content-between align-items-center mb-4">
           <div className="d-flex align-items-center">
             <h2> Movie Wishlist </h2>
@@ -146,80 +146,81 @@ const MovieWishlistContainer = () => {
           </div>
           <SearchBar searchMovie={searchMovie} />
         </div>
-        <Row className="my-4">
-          <Col>
-            {isLoading && (
-              <Button variant="warning" disabled>
-                <Spinner
-                  as="span"
-                  animation="border"
-                  size="sm"
-                  role="status"
-                  aria-hidden="true"
-                />
-                Loading...
-              </Button>
-            )}
-            {!isLoading && searchedMovie.id && (
-              <div>
-                <Card className="shadow-sm mb-4 bg-light movie-card">
-                  <Card.Body>
-                    <Row>
-                      <Col md={12}>
-                        <MovieCard
-                          movie={searchedMovie}
-                          onClick={handleMovieClick}
-                        />
-                      </Col>
-                    </Row>
-                    <Row className="mt-3">
-                      <Col className="d-flex flex-column justify-content-between">
-                        <AddToWishList
-                          movie={searchedMovie}
-                          addMovieToWishList={addMovieToWishList}
-                          wishList={wishList}
-                        />
-                      </Col>
-                    </Row>
-                  </Card.Body>
-                </Card>
+      </Col>
+      <Row className="my-4">
+        <Col>
+          {isLoading && (
+            <Button variant="warning" disabled>
+              <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+              />
+              Loading...
+            </Button>
+          )}
+          {!isLoading && searchedMovie.id && (
+            <div>
+              <Card className="shadow-sm mb-4 bg-light movie-card">
+                <Card.Body>
+                  <Row>
+                    <Col md={12}>
+                      <MovieCard
+                        movie={searchedMovie}
+                        onClick={handleMovieClick}
+                      />
+                    </Col>
+                  </Row>
+                  <Row className="mt-3">
+                    <Col className="d-flex flex-column justify-content-between">
+                      <AddToWishList
+                        movie={searchedMovie}
+                        addMovieToWishList={addMovieToWishList}
+                        wishList={wishList}
+                      />
+                    </Col>
+                  </Row>
+                </Card.Body>
+              </Card>
 
-                <MovieSection
-                  title="Similar Movies"
-                  movies={similarMovies}
-                  onMovieClick={handleMovieClick}
-                />
-              </div>
-            )}
+              <MovieSection
+                title="Similar Movies"
+                movies={similarMovies}
+                onMovieClick={handleMovieClick}
+              />
+            </div>
+          )}
 
-            <MovieSection
-              title="Top Rated Movies"
-              movies={topMovies}
-              onMovieClick={handleMovieClick}
-            />
-            <MovieSection
-              title="Popular Movies"
-              movies={popularMovies}
-              onMovieClick={handleMovieClick}
-            />
-            <MovieSection
-              title="Now Playing"
-              movies={nowPlaying}
-              onMovieClick={handleMovieClick}
-            />
-            <MovieSection
-              title="Upcoming Movies"
-              movies={upcomingMovies}
-              onMovieClick={handleMovieClick}
-            />
-            <MovieSection
-              title="Trending Movies"
-              movies={trendingMovies}
-              onMovieClick={handleMovieClick}
-            />
-          </Col>
-        </Row>
-      </div>
+          <MovieSection
+            title="Top Rated Movies"
+            movies={topMovies}
+            onMovieClick={handleMovieClick}
+          />
+          <MovieSection
+            title="Popular Movies"
+            movies={popularMovies}
+            onMovieClick={handleMovieClick}
+          />
+          <MovieSection
+            title="Now Playing"
+            movies={nowPlaying}
+            onMovieClick={handleMovieClick}
+          />
+          <MovieSection
+            title="Upcoming Movies"
+            movies={upcomingMovies}
+            onMovieClick={handleMovieClick}
+          />
+          <MovieSection
+            title="Trending Movies"
+            movies={trendingMovies}
+            onMovieClick={handleMovieClick}
+          />
+        </Col>
+      </Row>
+
       <Routes>
         <Route
           path="/WishList"
@@ -228,7 +229,7 @@ const MovieWishlistContainer = () => {
           }
         />
       </Routes>
-    </div>
+    </Container>
   );
 };
 

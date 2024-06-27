@@ -1,14 +1,13 @@
+import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
+import axios from "axios";
+import { Link, Route, Routes } from "react-router-dom";
+import { FaHeart } from "react-icons/fa"; // Import Font Awesome icon
 import logo from "../utilities/logo.png";
 import SearchBar from "./SearchBar";
 import MovieCard from "./MovieCard";
 import AddToWishList from "./AddToWishList";
 import MovieSection from "./MovieSection";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { Link, Route, Routes } from "react-router-dom";
-import { FaHeart } from "react-icons/fa"; // Import Font Awesome icon
-
 import WishList from "../pages/WishList";
 
 // const TMDB_API_KEY = "3510cfa16a6f3bcb9a22b17cc29f0d76";
@@ -131,10 +130,11 @@ const MovieWishlistContainer = () => {
 
   return (
     <Container>
-      <Col xs={12} md={6} lg={4}>
-        <div className="header d-flex justify-content-between align-items-center mb-4">
-          <div className="d-flex align-items-center">
-            <h2> Movie Wishlist </h2>
+      <Row className="justify-content-center mb-4">
+        <Col xs={12} md={10}>
+          <div className="header d-flex justify-content-between align-items-center">
+            <h2>Movie Wishlist</h2>
+            <SearchBar searchMovie={searchMovie} />
             {wishList.length > 0 && (
               <Link
                 to="/WishList"
@@ -144,9 +144,9 @@ const MovieWishlistContainer = () => {
               </Link>
             )}
           </div>
-          <SearchBar searchMovie={searchMovie} />
-        </div>
-      </Col>
+        </Col>
+      </Row>
+
       <Row className="my-4">
         <Col>
           {isLoading && (
@@ -166,7 +166,7 @@ const MovieWishlistContainer = () => {
               <Card className="shadow-sm mb-4 bg-light movie-card">
                 <Card.Body>
                   <Row>
-                    <Col md={12}>
+                    <Col>
                       <MovieCard
                         movie={searchedMovie}
                         onClick={handleMovieClick}

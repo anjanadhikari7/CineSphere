@@ -103,6 +103,7 @@ const MovieWishlistContainer = () => {
     setIsLoading(true);
     const detailedMovie = await fetchMovieDetails(movieId);
     setSearchedMovie(detailedMovie);
+
     setIsLoading(false);
   };
 
@@ -129,7 +130,7 @@ const MovieWishlistContainer = () => {
   }, []);
 
   return (
-    <Container>
+    <Container fluid>
       <Row className="justify-content-center mb-4">
         <Col xs={12} md={10}>
           <div className="header d-flex justify-content-between align-items-center">

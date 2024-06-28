@@ -1,5 +1,3 @@
-// App.jsx
-
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
@@ -14,8 +12,7 @@ const App = () => {
     <div
       style={{
         backgroundImage: "linear-gradient(to bottom, #000, #333)",
-        height: "100vh",
-        width: "100vw",
+        color: "aqua",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

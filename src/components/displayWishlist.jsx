@@ -1,4 +1,6 @@
 import { Col, Row, Card } from "react-bootstrap";
+import { FaTrash } from "react-icons/fa";
+import NoPoster from "../utilities/noPoster.jpg";
 
 const DisplayWishList = (props) => {
   const { wishList, Genre, handleOnRemove } = props;
@@ -18,7 +20,15 @@ const DisplayWishList = (props) => {
           key={movie.id}
         >
           <Card style={{ width: "18rem" }} className="mb-3">
-            <Card.Img variant="top" src={movie.poster} height={300} />
+            <Card.Img
+              variant="top"
+              src={
+                movie.poster_path
+                  ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                  : NoPoster
+              }
+              height={300}
+            />
             <Card.Body className="position-relative">
               <Card.Title>{movie.title}</Card.Title>
               <button
@@ -27,7 +37,7 @@ const DisplayWishList = (props) => {
                 onClick={() => handleOnRemove(movie.id)}
                 title="Delete"
               >
-                <i className="fa fa-trash"></i>
+                <FaTrash />
               </button>
             </Card.Body>
           </Card>

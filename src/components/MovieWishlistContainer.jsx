@@ -3,14 +3,12 @@ import { Button, Card, Col, Container, Row, Spinner } from "react-bootstrap";
 import axios from "axios";
 import { Link, Route, Routes } from "react-router-dom";
 import { FaHeart } from "react-icons/fa"; // Import Font Awesome icon
-import logo from "../utilities/logo.png";
 import SearchBar from "./SearchBar";
 import MovieCard from "./MovieCard";
 import AddToWishList from "./AddToWishList";
 import MovieSection from "./MovieSection";
 import WishList from "../pages/WishList";
 
-// const TMDB_API_KEY = "3510cfa16a6f3bcb9a22b17cc29f0d76";
 const TMDB_API_KEY = "3510cfa16a6f3bcb9a22b17cc29f0d76";
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 const TOP_MOVIES_URL = `${TMDB_BASE_URL}/movie/top_rated?api_key=${TMDB_API_KEY}`;
@@ -87,7 +85,7 @@ const MovieWishlistContainer = () => {
         const detailedMovie = await fetchMovieDetails(firstMovie.id);
 
         setSearchedMovie(detailedMovie);
-        setSimilarMovies(restMovies);
+        setSimilarMovies(restMovies); // Set similar movies here
       } else {
         setSearchedMovie({});
         setSimilarMovies([]);
@@ -103,8 +101,9 @@ const MovieWishlistContainer = () => {
     setIsLoading(true);
     const detailedMovie = await fetchMovieDetails(movieId);
     setSearchedMovie(detailedMovie);
-
+    setSimilarMovies([]);
     setIsLoading(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const addMovieToWishList = (movie) => {
@@ -132,104 +131,93 @@ const MovieWishlistContainer = () => {
   return (
     <Container fluid>
       <Row className="justify-content-center mb-4">
-        <Col xs={12} md={10}>
-          <div className="header d-flex justify-content-between align-items-center">
-            <h2>Movie Wishlist</h2>
+        <Col xs={12} md={10} className="d-flex justify-content-between">
+          <div className="header d-flex justify-content-center flex-grow-1">
             <SearchBar searchMovie={searchMovie} />
-            {wishList.length > 0 && (
+          </div>
+          {wishList.length > 0 && (
+            <div className="d-flex align-items-center ms-3">
               <Link
                 to="/WishList"
                 className="text-light d-flex align-items-center"
               >
                 <FaHeart className="me-2" /> My WishList
               </Link>
-            )}
-          </div>
-        </Col>
-      </Row>
-
-      <Row className="my-4">
-        <Col>
-          {isLoading && (
-            <Button variant="warning" disabled>
-              <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-              />
-              Loading...
-            </Button>
-          )}
-          {!isLoading && searchedMovie.id && (
-            <div>
-              <Card className="shadow-sm mb-4 bg-light movie-card">
-                <Card.Body>
-                  <Row>
-                    <Col>
-                      <MovieCard
-                        movie={searchedMovie}
-                        onClick={handleMovieClick}
-                      />
-                    </Col>
-                  </Row>
-                  <Row className="mt-3">
-                    <Col className="d-flex flex-column justify-content-between">
-                      <AddToWishList
-                        movie={searchedMovie}
-                        addMovieToWishList={addMovieToWishList}
-                        wishList={wishList}
-                      />
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
-
-              <MovieSection
-                title="Similar Movies"
-                movies={similarMovies}
-                onMovieClick={handleMovieClick}
-              />
             </div>
           )}
-
-          <MovieSection
-            title="Top Rated Movies"
-            movies={topMovies}
-            onMovieClick={handleMovieClick}
-          />
-          <MovieSection
-            title="Popular Movies"
-            movies={popularMovies}
-            onMovieClick={handleMovieClick}
-          />
-          <MovieSection
-            title="Now Playing"
-            movies={nowPlaying}
-            onMovieClick={handleMovieClick}
-          />
-          <MovieSection
-            title="Upcoming Movies"
-            movies={upcomingMovies}
-            onMovieClick={handleMovieClick}
-          />
-          <MovieSection
-            title="Trending Movies"
-            movies={trendingMovies}
-            onMovieClick={handleMovieClick}
-          />
         </Col>
       </Row>
 
-      <Routes>
-        <Route
-          path="/WishList"
-          element={
-            <WishList wishList={wishList} handleOnRemove={handleOnRemove} />
-          }
-        />
-      </Routes>
+      {searchedMovie.id && (
+        <Row className="my-4">
+          <Col>
+            {isLoading && (
+              <Button variant="warning" disabled>
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+                Loading...
+              </Button>
+            )}
+            {!isLoading && (
+              <div>
+                <Card className="shadow-sm mb-4 bg-light movie-card">
+                  <Card.Body>
+                    <Row>
+                      <Col>
+                        <MovieCard
+                          movie={searchedMovie}
+                          onClick={handleMovieClick}
+                          addMovieToWishList={addMovieToWishList}
+                          wishList={wishList}
+                        />
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Card>
+
+                {similarMovies.length > 0 && (
+                  <MovieSection
+                    title="Similar Movies"
+                    movies={similarMovies}
+                    onMovieClick={handleMovieClick}
+                  />
+                )}
+              </div>
+            )}
+          </Col>
+        </Row>
+      )}
+
+      <MovieSection
+        title="Top Rated Movies"
+        movies={topMovies}
+        onMovieClick={handleMovieClick}
+      />
+      <MovieSection
+        title="Popular Movies"
+        movies={popularMovies}
+        onMovieClick={handleMovieClick}
+      />
+      <MovieSection
+        title="Now Playing"
+        movies={nowPlaying}
+        onMovieClick={handleMovieClick}
+      />
+      <MovieSection
+        title="Upcoming Movies"
+        movies={upcomingMovies}
+        onMovieClick={handleMovieClick}
+      />
+      <MovieSection
+        title="Trending Movies"
+        movies={trendingMovies}
+        onMovieClick={handleMovieClick}
+      />
     </Container>
   );
 };

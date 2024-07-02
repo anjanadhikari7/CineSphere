@@ -23,11 +23,11 @@ const MOVIE_DETAILS_URL = (id) =>
 const MOVIE_CREDITS_URL = (id) =>
   `${TMDB_BASE_URL}/movie/${id}/credits?api_key=${TMDB_API_KEY}`;
 
-const MovieWishlistContainer = () => {
+const MovieWishlistContainer = (props) => {
+  const { wishList, setWishList } = props;
   const [searchedMovie, setSearchedMovie] = useState({});
   const [similarMovies, setSimilarMovies] = useState([]);
-  const storedMovieList = JSON.parse(localStorage.getItem("wishList")) || [];
-  const [wishList, setWishList] = useState(storedMovieList);
+
   const [isLoading, setIsLoading] = useState(false);
   const [topMovies, setTopMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
@@ -113,16 +113,6 @@ const MovieWishlistContainer = () => {
   useEffect(() => {
     localStorage.setItem("wishList", JSON.stringify(wishList));
   }, [wishList]);
-
-  const handleOnRemove = (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this movie from your wishlist?"
-    );
-    if (confirmDelete) {
-      const updatedWishList = wishList.filter((movie) => movie.id !== id);
-      setWishList(updatedWishList);
-    }
-  };
 
   useEffect(() => {
     fetchTMDBMovies();

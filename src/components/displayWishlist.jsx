@@ -1,6 +1,6 @@
 import { Col, Row, Card } from "react-bootstrap";
 import { FaTrash } from "react-icons/fa";
-import NoPoster from "../utilities/noPoster.jpg";
+import NoPoster from "../utilities/noPoster.jpg"; 
 
 const DisplayWishList = (props) => {
   const { wishList, Genre, handleOnRemove } = props;

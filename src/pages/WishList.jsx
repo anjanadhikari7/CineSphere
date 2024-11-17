@@ -1,10 +1,12 @@
 import { Tab, Tabs } from "react-bootstrap";
 import DisplayWishList from "../components/displayWishlist";
+import NavBar from "../components/NavBar";
 
 const WishList = (props) => {
-  const { wishList, handleOnRemove } = props;
+  const { wishList, handleOnRemove, searchMovie } = props;
   return (
     <>
+      <NavBar wishList={wishList} searchMovie={searchMovie} />
       <Tabs defaultActiveKey="all" id="wishlist-tabs" className="mb-3">
         <Tab eventKey="all" title="All Movies" className="p-3 subtle-tab">
           <DisplayWishList

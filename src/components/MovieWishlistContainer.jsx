@@ -8,6 +8,7 @@ import MovieCard from "./MovieCard";
 import AddToWishList from "./AddToWishList";
 import MovieSection from "./MovieSection";
 import WishList from "../pages/WishList";
+import NavBar from "./NavBar";
 
 const TMDB_API_KEY = "3510cfa16a6f3bcb9a22b17cc29f0d76";
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
@@ -120,24 +121,7 @@ const MovieWishlistContainer = (props) => {
 
   return (
     <Container fluid>
-      <Row className="justify-content-center mb-4">
-        <Col xs={12} md={10} className="d-flex justify-content-between">
-          <div className="header d-flex justify-content-center flex-grow-1">
-            <SearchBar searchMovie={searchMovie} />
-          </div>
-          {wishList.length > 0 && (
-            <div className="d-flex align-items-center ms-3">
-              <Link
-                to="/WishList"
-                className="text-light d-flex align-items-center"
-              >
-                <FaHeart className="me-2" /> My WishList
-              </Link>
-            </div>
-          )}
-        </Col>
-      </Row>
-
+      <NavBar wishList={wishList} searchMovie={searchMovie} />
       {searchedMovie.id && (
         <Row className="my-4">
           <Col>
